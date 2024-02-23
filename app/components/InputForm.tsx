@@ -25,18 +25,7 @@ const InputForm: React.FC<InputFormProps> = ({ onSubmit }) => {
           rows={5}
           className="text-black block w-full p-2 border border-gray-300"
         />
-        <div className="mt-4">
-          <label
-            htmlFor="printOption"
-            className="text-gray-800 inline-block mr-2"
-          >
-            Group by:
-          </label>
-          <select id="printOption" className="text-black bg-white ml-2">
-            <option value="Original">Original Printing</option>
-            <option value="Most Recent">Most Recent Printing</option>
-          </select>
-        </div>
+
         <button
           type="submit"
           className="mt-4 bg-blue-500 text-white p-2 rounded"
