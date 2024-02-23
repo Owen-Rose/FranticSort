@@ -25,7 +25,6 @@ const InputForm: React.FC<InputFormProps> = ({ onSubmit }) => {
           rows={5}
           className="text-black block w-full p-2 border border-gray-300"
         />
-
         <button
           type="submit"
           className="mt-4 bg-blue-500 text-white p-2 rounded"

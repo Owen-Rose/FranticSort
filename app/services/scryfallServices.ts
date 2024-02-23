@@ -1,9 +1,6 @@
 import axios from "axios";
 
-export const getSetsFromCard = async (
-  cardName: string,
-  printOption: string
-) => {
+export const getSetsFromCard = async (cardName: string) => {
   try {
     const response = await axios.get(
       `https://api.scryfall.com/cards/search?q=${encodeURIComponent(
@@ -13,34 +10,21 @@ export const getSetsFromCard = async (
 
     // If the card is not found in the API, return a specific error message
     if (response.data.data.length === 0) {
-      return { cardName, set: `${cardName} not found` };
+      return { cardName, sets: [`${cardName} not found`] };
     }
 
     // Extract set names directly from the initial response
-    const setNames = response.data.data
+    const sets = response.data.data
       .filter((card: any) => !card.promo)
       .map((card: any) => card.set_name);
 
-    // Sort the set names in chronological order (newest first)
-    setNames.sort((a, b) => {
-      const dateA = new Date(
-        response.data.data.find((c: any) => c.set_name === a)?.released_at
-      );
-      const dateB = new Date(
-        response.data.data.find((c: any) => c.set_name === b)?.released_at
-      );
-      return dateB.getTime() - dateA.getTime();
-    });
+    // Remove duplicate set names
+    const uniqueSets = Array.from(new Set(sets));
 
-    const chosenSet =
-      printOption === "Original Printing"
-        ? setNames[setNames.length - 1]
-        : setNames[0];
-
-    return { cardName, set: chosenSet };
+    return { cardName, sets: uniqueSets };
   } catch (error) {
     console.error(`Error fetching information for card ${cardName}:`, error);
     // Return a specific error message when there's an issue fetching data from the API
-    return { cardName, set: `Error fetching ${cardName}` };
+    return { cardName, sets: [`Error fetching ${cardName}`] };
   }
 };

@@ -1,4 +1,3 @@
-// GroupedCardList.tsx
 import React, { useState, useRef } from "react";
 
 interface GroupedCardListProps {
@@ -10,8 +9,13 @@ const GroupedCardList: React.FC<GroupedCardListProps> = ({ groupedCards }) => {
   const [checkedCards, setCheckedCards] = useState<Record<string, boolean>>({});
   const listRef = useRef<HTMLDivElement>(null);
 
+  // Sorting logic for set buttons
+  const sortedSets = Object.entries(groupedCards)
+    .sort((a, b) => b[1].length - a[1].length)
+    .map(([set, cards]) => ({ set, cardCount: cards.length }));
+
   const handleSetClick = (set: string) => {
-    setSelectedSet(selectedSet === set ? null : set);
+    setSelectedSet((prevSet) => (prevSet === set ? null : set));
 
     // Smooth scroll to the top of the list when a set is clicked
     if (listRef.current) {
@@ -26,19 +30,6 @@ const GroupedCardList: React.FC<GroupedCardListProps> = ({ groupedCards }) => {
     setCheckedCards({ ...checkedCards, [card]: !checkedCards[card] });
   };
 
-  // Convert the groupedCards object into an array of sets with card counts
-  const setsWithCardCounts = Object.entries(groupedCards).map(
-    ([set, cards]) => ({
-      set,
-      cardCount: cards.length,
-    })
-  );
-
-  // Sort the sets array in descending order based on card counts
-  const sortedSets = setsWithCardCounts.sort(
-    (a, b) => b.cardCount - a.cardCount
-  );
-
   const handleCheckAll = () => {
     const newCheckedCards: Record<string, boolean> = {};
     (groupedCards[selectedSet] || []).forEach(
@@ -50,6 +41,7 @@ const GroupedCardList: React.FC<GroupedCardListProps> = ({ groupedCards }) => {
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="col-span-1 p-4 sticky top-0" ref={listRef}>
+        {/* Sorting set buttons in descending order based on card count */}
         {sortedSets.map(({ set, cardCount }) => (
           <button
             key={set}
@@ -67,8 +59,9 @@ const GroupedCardList: React.FC<GroupedCardListProps> = ({ groupedCards }) => {
           <div>
             <h2 className="text-lg font-bold mb-2">{selectedSet}</h2>
             <ul>
+              {/* Sorting cards alphabetically within the selected set */}
               {groupedCards[selectedSet]
-                .sort() // Sort the list of cards alphabetically
+                .sort((a, b) => a.localeCompare(b))
                 .map((card) => (
                   <li key={card} className="p-1">
                     <label className="flex items-center space-x-2 cursor-pointer">

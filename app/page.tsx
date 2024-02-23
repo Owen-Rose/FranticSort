@@ -9,7 +9,6 @@ const App: React.FC = () => {
   const [groupedCards, setGroupedCards] = useState<Record<string, string[]>>(
     {}
   );
-  const [printOption, setPrintOption] = useState("Original");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleFormSubmit = async (inputText: string) => {
@@ -18,15 +17,17 @@ const App: React.FC = () => {
     const uniqueCardList = [...new Set(cardList)];
 
     const cardSetInfo = await Promise.all(
-      uniqueCardList.map((cardName) => getSetsFromCard(cardName, printOption))
+      uniqueCardList.map((cardName) => getSetsFromCard(cardName))
     );
 
     const groupedCardsData: Record<string, string[]> = {};
-    cardSetInfo.forEach(({ cardName, set }) => {
-      if (!groupedCardsData[set]) {
-        groupedCardsData[set] = [];
-      }
-      groupedCardsData[set].push(cardName);
+    cardSetInfo.forEach(({ cardName, sets }) => {
+      sets.forEach((set) => {
+        if (!groupedCardsData[set]) {
+          groupedCardsData[set] = [];
+        }
+        groupedCardsData[set].push(cardName);
+      });
     });
 
     setGroupedCards(groupedCardsData);
