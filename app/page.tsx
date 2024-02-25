@@ -20,13 +20,19 @@ const App: React.FC = () => {
       uniqueCardList.map((cardName) => getSetsFromCard(cardName))
     );
 
-    const groupedCardsData: Record<string, string[]> = {};
+    const groupedCardsData: Record<
+      string,
+      { cards: string[]; releasedAt: string }
+    > = {};
     cardSetInfo.forEach(({ cardName, sets }) => {
-      sets.forEach((set) => {
-        if (!groupedCardsData[set]) {
-          groupedCardsData[set] = [];
-        }
-        groupedCardsData[set].push(cardName);
+      sets.forEach(({ set, released_at }) => {
+        // Deduplicate cards using a Set before adding
+        const uniqueCardNames = new Set(groupedCardsData[set]?.cards || []);
+        uniqueCardNames.add(cardName);
+        groupedCardsData[set] = {
+          cards: Array.from(uniqueCardNames),
+          releasedAt: released_at,
+        };
       });
     });
 

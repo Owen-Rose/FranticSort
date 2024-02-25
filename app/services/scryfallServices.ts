@@ -1,6 +1,11 @@
 import axios from "axios";
 
-export const getSetsFromCard = async (cardName: string) => {
+export const getSetsFromCard = async (
+  cardName: string
+): Promise<{
+  cardName: string;
+  sets: { set: string; released_at: string }[];
+}> => {
   try {
     const response = await axios.get(
       `https://api.scryfall.com/cards/search?q=${encodeURIComponent(
@@ -16,12 +21,12 @@ export const getSetsFromCard = async (cardName: string) => {
     // Extract set names directly from the initial response
     const sets = response.data.data
       .filter((card: any) => !card.promo)
-      .map((card: any) => card.set_name);
+      .map((card: any) => ({
+        set: card.set_name,
+        released_at: card.released_at,
+      }));
 
-    // Remove duplicate set names
-    const uniqueSets = Array.from(new Set(sets));
-
-    return { cardName, sets: uniqueSets };
+    return { cardName, sets };
   } catch (error) {
     console.error(`Error fetching information for card ${cardName}:`, error);
     // Return a specific error message when there's an issue fetching data from the API

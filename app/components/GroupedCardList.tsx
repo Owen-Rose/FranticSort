@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 
 interface GroupedCardListProps {
-  groupedCards: Record<string, string[]>;
+  groupedCards: Record<string, { cards: string[]; releasedAt: string }>;
 }
 
 const GroupedCardList: React.FC<GroupedCardListProps> = ({ groupedCards }) => {
@@ -11,8 +11,23 @@ const GroupedCardList: React.FC<GroupedCardListProps> = ({ groupedCards }) => {
 
   // Sorting logic for set buttons
   const sortedSets = Object.entries(groupedCards)
-    .sort((a, b) => b[1].length - a[1].length)
-    .map(([set, cards]) => ({ set, cardCount: cards.length }));
+    .sort((a, b) => {
+      // Sort by card count first (descending)
+      const cardCountDiff = b[1].cards.length - a[1].cards.length;
+      if (cardCountDiff !== 0) {
+        return cardCountDiff;
+      }
+
+      // Sort by release date (ascending) if card counts are equal
+      const dateA = new Date(a[1].releasedAt);
+      const dateB = new Date(b[1].releasedAt);
+      return dateB.getTime() - dateA.getTime();
+    })
+    .map(([set, { cards, releasedAt }]) => ({
+      set,
+      releasedAt,
+      cardCount: cards.length,
+    }));
 
   const handleSetClick = (set: string) => {
     setSelectedSet((prevSet) => (prevSet === set ? null : set));
@@ -32,7 +47,7 @@ const GroupedCardList: React.FC<GroupedCardListProps> = ({ groupedCards }) => {
 
   const handleCheckAll = () => {
     const newCheckedCards: Record<string, boolean> = {};
-    (groupedCards[selectedSet] || []).forEach(
+    (groupedCards[selectedSet]?.cards || []).forEach(
       (card) => (newCheckedCards[card] = true)
     );
     setCheckedCards(newCheckedCards);
@@ -42,7 +57,7 @@ const GroupedCardList: React.FC<GroupedCardListProps> = ({ groupedCards }) => {
     <div className="grid grid-cols-2 gap-4">
       <div className="col-span-1 p-4 sticky top-0" ref={listRef}>
         {/* Sorting set buttons in descending order based on card count */}
-        {sortedSets.map(({ set, cardCount }) => (
+        {sortedSets.map(({ set, cardCount, releasedAt }) => (
           <button
             key={set}
             onClick={() => handleSetClick(set)}
@@ -60,7 +75,7 @@ const GroupedCardList: React.FC<GroupedCardListProps> = ({ groupedCards }) => {
             <h2 className="text-lg font-bold mb-2">{selectedSet}</h2>
             <ul>
               {/* Sorting cards alphabetically within the selected set */}
-              {groupedCards[selectedSet]
+              {groupedCards[selectedSet]?.cards
                 .sort((a, b) => a.localeCompare(b))
                 .map((card) => (
                   <li key={card} className="p-1">
