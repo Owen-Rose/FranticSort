@@ -26,7 +26,9 @@ const App: React.FC = () => {
           ? { name: match[2].trim(), quantity: parseInt(match[1]) || 1 }
           : null;
       })
-      .filter((card) => card !== null);
+      .filter(
+        (card): card is { name: string; quantity: number } => card !== null
+      ); // Type assertion
 
     const totalCardsQuantity = cardList.reduce(
       (sum, { quantity }) => sum + quantity,
