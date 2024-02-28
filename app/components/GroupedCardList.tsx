@@ -3,7 +3,11 @@ import React, { useState, useEffect, useRef } from "react";
 interface GroupedCardListProps {
   groupedCards: Record<
     string,
-    { cards: string[]; quantity: number; releasedAt: string }
+    {
+      cards: { name: string; image_uri: string }[];
+      quantity: number;
+      releasedAt: string;
+    }
   >;
   cardQuantities: Record<string, number>;
   updateGatheredCards: (count: number) => void;

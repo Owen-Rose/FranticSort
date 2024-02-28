@@ -15,7 +15,10 @@ export const getSetsFromCard = async (
 
     // If the card is not found in the API, return a specific error message
     if (response.data.data.length === 0) {
-      return { cardName, sets: [`${cardName} not found`] };
+      return {
+        cardName,
+        sets: [{ set: `${cardName} not found`, released_at: "" }],
+      };
     }
 
     // Extract set names directly from the initial response
@@ -30,6 +33,9 @@ export const getSetsFromCard = async (
   } catch (error) {
     console.error(`Error fetching information for card ${cardName}:`, error);
     // Return a specific error message when there's an issue fetching data from the API
-    return { cardName, sets: [`Error fetching ${cardName}`] };
+    return {
+      cardName,
+      sets: [{ set: `Error fetching ${cardName}`, released_at: "" }],
+    };
   }
 };
