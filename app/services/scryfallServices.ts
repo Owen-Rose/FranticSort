@@ -23,7 +23,15 @@ export const getSetsFromCard = async (
 
     // Extract set names directly from the initial response
     const sets = response.data.data
-      .filter((card: any) => !card.promo)
+      .filter((card: any) => {
+        // Exclude digital, promo cards, "The List", and "Secret Lair Drop" sets
+        return (
+          !card.digital &&
+          !card.promo &&
+          card.set_name !== "The List" &&
+          card.set !== "sld"
+        );
+      })
       .map((card: any) => ({
         set: card.set_name,
         released_at: card.released_at,

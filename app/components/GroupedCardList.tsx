@@ -7,12 +7,14 @@ interface GroupedCardListProps {
   >;
   cardQuantities: Record<string, number>;
   updateGatheredCards: (count: number) => void;
+  searchTerm: string;
 }
 
 const GroupedCardList: React.FC<GroupedCardListProps> = ({
   groupedCards,
   cardQuantities,
   updateGatheredCards,
+  searchTerm,
 }) => {
   const [selectedSet, setSelectedSet] = useState<string | null>(null);
   const [collectedCards, setCollectedCards] = useState<Record<string, number>>(
@@ -41,6 +43,14 @@ const GroupedCardList: React.FC<GroupedCardListProps> = ({
   }, [collectedCards, cardQuantities, updateGatheredCards]);
 
   const sortedSets = Object.entries(groupedCards)
+    .filter(
+      ([set, { cards }]) =>
+        searchTerm === "" ||
+        set.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cards.some((card) =>
+          card.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+    )
     .sort((a, b) => {
       const cardCountDiff = b[1].cards.length - a[1].cards.length;
       if (cardCountDiff !== 0) {
@@ -51,19 +61,16 @@ const GroupedCardList: React.FC<GroupedCardListProps> = ({
       const dateB = new Date(b[1].releasedAt);
       return dateB.getTime() - dateA.getTime();
     })
-    .map(([set, { cards, releasedAt }]) => {
-      const remainingCards = cards.filter(
+    .map(([set, { cards, releasedAt }]) => ({
+      set,
+      releasedAt,
+      remainingCards: cards.filter(
         (card) => collectedCards[card] < cardQuantities[card]
-      ).length;
-      const allCollected = remainingCards === 0;
-
-      return {
-        set,
-        releasedAt,
-        remainingCards,
-        allCollected,
-      };
-    });
+      ).length,
+      allCollected: cards.every(
+        (card) => collectedCards[card] >= cardQuantities[card]
+      ),
+    }));
 
   const handleSetClick = (set: string) => {
     setSelectedSet((prevSet) => (prevSet === set ? null : set));
