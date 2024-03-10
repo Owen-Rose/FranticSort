@@ -4,7 +4,7 @@ export const getSetsFromCard = async (
   cardName: string
 ): Promise<{
   cardName: string;
-  sets: { set: string; released_at: string }[];
+  sets: { set: string; released_at: string; image_url: string }[];
 }> => {
   try {
     const response = await axios.get(
@@ -35,6 +35,7 @@ export const getSetsFromCard = async (
       .map((card: any) => ({
         set: card.set_name,
         released_at: card.released_at,
+        image_url: card.image_uris?.normal || "",
       }));
 
     return { cardName, sets };

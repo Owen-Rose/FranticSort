@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 
 interface GroupedCardListProps {
   groupedCards: Record<
     string,
-    { cards: string[]; quantity: number; releasedAt: string }
+    {
+      cards: { name: string; imageUrl: string }[];
+      quantity: number;
+      releasedAt: string;
+    }
   >;
   cardQuantities: Record<string, number>;
   updateGatheredCards: (count: number) => void;
@@ -25,8 +30,8 @@ const GroupedCardList: React.FC<GroupedCardListProps> = ({
   useEffect(() => {
     const initialCollectedCards: Record<string, number> = {};
     Object.values(groupedCards).forEach(({ cards }) => {
-      cards.forEach((card) => {
-        initialCollectedCards[card] = 0;
+      cards.forEach(({ name }) => {
+        initialCollectedCards[name] = 0;
       });
     });
     setCollectedCards(initialCollectedCards);
@@ -47,8 +52,8 @@ const GroupedCardList: React.FC<GroupedCardListProps> = ({
       ([set, { cards }]) =>
         searchTerm === "" ||
         set.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cards.some((card) =>
-          card.toLowerCase().includes(searchTerm.toLowerCase())
+        cards.some(({ name }) =>
+          name.toLowerCase().includes(searchTerm.toLowerCase())
         )
     )
     .sort((a, b) => {
@@ -65,10 +70,10 @@ const GroupedCardList: React.FC<GroupedCardListProps> = ({
       set,
       releasedAt,
       remainingCards: cards.filter(
-        (card) => collectedCards[card] < cardQuantities[card]
+        ({ name }) => collectedCards[name] < cardQuantities[name]
       ).length,
       allCollected: cards.every(
-        (card) => collectedCards[card] >= cardQuantities[card]
+        ({ name }) => collectedCards[name] >= cardQuantities[name]
       ),
     }));
 
@@ -104,16 +109,16 @@ const GroupedCardList: React.FC<GroupedCardListProps> = ({
 
   const checkAllCards = (set: string) => {
     const updatedCollectedCards = { ...collectedCards };
-    groupedCards[set].cards.forEach((card) => {
-      updatedCollectedCards[card] = cardQuantities[card];
+    groupedCards[set].cards.forEach(({ name }) => {
+      updatedCollectedCards[name] = cardQuantities[name];
     });
     setCollectedCards(updatedCollectedCards);
   };
 
   const uncheckAllCards = (set: string) => {
     const updatedCollectedCards = { ...collectedCards };
-    groupedCards[set].cards.forEach((card) => {
-      updatedCollectedCards[card] = 0;
+    groupedCards[set].cards.forEach(({ name }) => {
+      updatedCollectedCards[name] = 0;
     });
     setCollectedCards(updatedCollectedCards);
   };
@@ -155,38 +160,50 @@ const GroupedCardList: React.FC<GroupedCardListProps> = ({
             </button>
             <ul className="mt-2">
               {groupedCards[selectedSet]?.cards
-                .sort((a, b) => a.localeCompare(b))
-                .map((card) => (
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map(({ name, imageUrl }) => (
                   <li
-                    key={card}
-                    className="p-1 flex justify-between items-center"
+                    key={name}
+                    className="p-1 flex justify-between items-center group"
                   >
-                    <p
-                      className={`${
-                        collectedCards[card] >= cardQuantities[card]
-                          ? "line-through text-gray-500"
-                          : "text-gray-800"
-                      }`}
-                    >
-                      {card} (x{cardQuantities[card]})
-                    </p>
+                    <div className="relative">
+                      <p
+                        className={`${
+                          collectedCards[name] >= cardQuantities[name]
+                            ? "line-through text-gray-500"
+                            : "text-gray-800"
+                        }`}
+                      >
+                        {name} (x{cardQuantities[name]})
+                      </p>
+                      <div className="absolute hidden group-hover:block p-1">
+                        <div className="relative w-32 h-44 lg:w-64 lg:h-88 z-10">
+                          <Image
+                            src={imageUrl}
+                            alt={name}
+                            width={252}
+                            height={352}
+                          />
+                        </div>
+                      </div>
+                    </div>
                     <div className="flex items-center">
                       <button
-                        onClick={() => decrementCardCount(card)}
+                        onClick={() => decrementCardCount(name)}
                         className="bg-red-500 text-white rounded px-2 py-1 mr-2"
-                        style={{ width: "2.5rem" }} // Fixed width for buttons
+                        style={{ width: "2.5rem" }}
                       >
                         -
                       </button>
                       <span style={{ minWidth: "1.5rem", textAlign: "center" }}>
                         {" "}
                         {/* Minimum width for number display */}
-                        {collectedCards[card] || 0}
+                        {collectedCards[name] || 0}
                       </span>
                       <button
-                        onClick={() => incrementCardCount(card)}
+                        onClick={() => incrementCardCount(name)}
                         className="bg-green-500 text-white rounded px-2 py-1 ml-2"
-                        style={{ width: "2.5rem" }} // Fixed width for buttons
+                        style={{ width: "2.5rem" }}
                       >
                         +
                       </button>

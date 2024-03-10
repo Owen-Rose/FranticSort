@@ -58,10 +58,15 @@ const App: React.FC = () => {
 
     const groupedCardsData: Record<
       string,
-      { cards: string[]; quantity: number; releasedAt: string }
+      {
+        cards: { name: string; imageUrl: string }[];
+        quantity: number;
+        releasedAt: string;
+      }
     > = {};
     cardSetInfo.forEach(({ cardName, sets }) => {
-      sets.forEach(({ set, released_at }) => {
+      sets.forEach(({ set, released_at, image_url }) => {
+        // Add image_url here
         if (!groupedCardsData[set]) {
           groupedCardsData[set] = {
             cards: [],
@@ -69,8 +74,14 @@ const App: React.FC = () => {
             releasedAt: released_at,
           };
         }
-        if (!groupedCardsData[set].cards.includes(cardName)) {
-          groupedCardsData[set].cards.push(cardName);
+        const existingCard = groupedCardsData[set].cards.find(
+          (card) => card.name === cardName
+        );
+        if (!existingCard) {
+          groupedCardsData[set].cards.push({
+            name: cardName,
+            imageUrl: image_url,
+          }); // Add card with imageUrl
         }
       });
     });
