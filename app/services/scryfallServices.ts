@@ -17,7 +17,9 @@ export const getSetsFromCard = async (
     if (response.data.data.length === 0) {
       return {
         cardName,
-        sets: [{ set: `${cardName} not found`, released_at: "" }],
+        sets: [
+          { set: `${cardName} not found`, released_at: "", image_url: "" },
+        ],
       };
     }
 
@@ -44,7 +46,9 @@ export const getSetsFromCard = async (
     // Return a specific error message when there's an issue fetching data from the API
     return {
       cardName,
-      sets: [{ set: `Error fetching ${cardName}`, released_at: "" }],
+      sets: [
+        { set: `Error fetching ${cardName}`, released_at: "", image_url: "" },
+      ],
     };
   }
 };
