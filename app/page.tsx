@@ -9,7 +9,14 @@ import PatchNotes from "./components/PatchNotes";
 const App: React.FC = () => {
   const [view, setView] = useState<"input" | "results">("input");
   const [groupedCards, setGroupedCards] = useState<
-    Record<string, { cards: string[]; quantity: number; releasedAt: string }>
+    Record<
+      string,
+      {
+        cards: { name: string; imageUrl: string }[];
+        quantity: number;
+        releasedAt: string;
+      }
+    >
   >({});
   const [cardQuantities, setCardQuantities] = useState<Record<string, number>>(
     {}
